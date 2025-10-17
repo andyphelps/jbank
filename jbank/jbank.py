@@ -1,7 +1,7 @@
 """Welcome to Reflex! This file outlines the steps to create a basic app."""
 
 import reflex as rx
-from reflex_google_auth import GoogleAuthState, require_google_login
+from reflex_google_auth import GoogleAuthState, require_google_login, google_login, google_oauth_provider
 
 from rxconfig import config
 
@@ -13,41 +13,40 @@ class State(rx.State):
 
 def login_page() -> rx.Component:
     """Login page with Google authentication."""
-    return rx.container(
-        rx.color_mode.button(position="top-right"),
-        rx.vstack(
-            rx.heading("JBank", size="9", margin_bottom="1rem"),
-            rx.text(
-                "Welcome to JBank - Your Joint Banking Application",
-                size="5",
-                color_scheme="gray",
-                margin_bottom="2rem",
-            ),
-            rx.card(
-                rx.vstack(
-                    rx.heading("Sign In", size="6", margin_bottom="1rem"),
-                    rx.text(
-                        "Please sign in with your Google account to access your banking dashboard.",
-                        size="3",
-                        color_scheme="gray",
-                        margin_bottom="1.5rem",
-                        text_align="center",
-                    ),
-                    GoogleAuthState.google_login_button(
-                        text="Sign in with Google",
-                        size="3",
-                    ),
-                    spacing="4",
-                    align="center",
+    return google_oauth_provider(
+        rx.container(
+            rx.color_mode.button(position="top-right"),
+            rx.vstack(
+                rx.heading("JBank", size="9", margin_bottom="1rem"),
+                rx.text(
+                    "Welcome to JBank - Your Joint Banking Application",
+                    size="5",
+                    color_scheme="gray",
+                    margin_bottom="2rem",
                 ),
-                padding="2rem",
-                max_width="500px",
+                rx.card(
+                    rx.vstack(
+                        rx.heading("Sign In", size="6", margin_bottom="1rem"),
+                        rx.text(
+                            "Please sign in with your Google account to access your banking dashboard.",
+                            size="3",
+                            color_scheme="gray",
+                            margin_bottom="1.5rem",
+                            text_align="center",
+                        ),
+                        google_login(),
+                        spacing="4",
+                        align="center",
+                    ),
+                    padding="2rem",
+                    max_width="500px",
+                ),
+                spacing="5",
+                justify="center",
+                align="center",
+                min_height="85vh",
             ),
-            spacing="5",
-            justify="center",
-            align="center",
-            min_height="85vh",
-        ),
+        )
     )
 
 
@@ -63,18 +62,18 @@ def dashboard() -> rx.Component:
                 rx.spacer(),
                 rx.hstack(
                     rx.avatar(
-                        src=GoogleAuthState.user_info_dict.get("picture", ""),
-                        fallback=GoogleAuthState.user_info_dict.get("given_name", "U")[0],
+                        src=GoogleAuthState.tokeninfo.get("picture", ""),
+                        fallback=GoogleAuthState.tokeninfo.get("given_name", "U")[0],
                         size="3",
                     ),
                     rx.vstack(
                         rx.text(
-                            GoogleAuthState.user_info_dict.get("name", "User"),
+                            GoogleAuthState.user_name,
                             size="3",
                             weight="bold",
                         ),
                         rx.text(
-                            GoogleAuthState.user_info_dict.get("email", ""),
+                            GoogleAuthState.user_email,
                             size="2",
                             color_scheme="gray",
                         ),
@@ -83,7 +82,7 @@ def dashboard() -> rx.Component:
                     ),
                     rx.button(
                         "Logout",
-                        on_click=GoogleAuthState.google_logout,
+                        on_click=GoogleAuthState.logout,
                         variant="soft",
                         color_scheme="red",
                     ),
@@ -99,7 +98,7 @@ def dashboard() -> rx.Component:
             rx.vstack(
                 rx.heading("Welcome to Your Banking Dashboard", size="6", margin_bottom="1rem"),
                 rx.text(
-                    f"Hello {GoogleAuthState.user_info_dict.get('given_name', 'User')}! You've successfully logged in.",
+                    f"Hello {GoogleAuthState.tokeninfo.get('given_name', 'User')}! You've successfully logged in.",
                     size="4",
                     color_scheme="gray",
                     margin_bottom="2rem",
