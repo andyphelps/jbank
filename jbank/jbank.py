@@ -8,14 +8,7 @@ from rxconfig import config
 
 class State(rx.State):
     """The app state."""
-
-    @rx.event
-    async def handle_login_success(self, response: dict):
-        """Handle successful Google login and redirect to dashboard."""
-        # Call the Google Auth state handler
-        await GoogleAuthState.on_success(response)
-        # Redirect to dashboard after successful login
-        return rx.redirect("/dashboard")
+    pass
 
 
 def login_page() -> rx.Component:
@@ -49,7 +42,7 @@ def login_page() -> rx.Component:
                                 margin_bottom="1.5rem",
                                 text_align="center",
                             ),
-                            google_login(on_success=State.handle_login_success),
+                            google_login(),
                             spacing="4",
                             align="center",
                         ),
@@ -87,8 +80,34 @@ def index() -> rx.Component:
     )
 
 
-@require_google_login()
-def dashboard(button=login_page()) -> rx.Component:
+@require_google_login(
+    button=rx.center(
+        rx.vstack(
+            rx.card(
+                rx.vstack(
+                    rx.heading("Authentication Required", size="6", margin_bottom="1rem"),
+                    rx.text(
+                        "Please sign in with your Google account to access the dashboard.",
+                        size="3",
+                        color_scheme="gray",
+                        margin_bottom="1.5rem",
+                        text_align="center",
+                    ),
+                    google_login(),
+                    spacing="4",
+                    align="center",
+                ),
+                padding="2rem",
+                max_width="500px",
+            ),
+            spacing="5",
+            justify="center",
+            align="center",
+            min_height="85vh",
+        ),
+    )
+)
+def dashboard() -> rx.Component:
     """Protected landing page/dashboard for the banking app."""
     return rx.container(
         rx.color_mode.button(position="top-right"),
@@ -119,7 +138,7 @@ def dashboard(button=login_page()) -> rx.Component:
                     ),
                     rx.button(
                         "Logout",
-                        on_click=GoogleAuthState.logout,
+                        on_click=[GoogleAuthState.logout, rx.redirect("/login")],
                         variant="soft",
                         color_scheme="red",
                     ),
