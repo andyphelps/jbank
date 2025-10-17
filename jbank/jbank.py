@@ -87,8 +87,8 @@ def index() -> rx.Component:
     )
 
 
-@require_google_login
-def dashboard() -> rx.Component:
+@require_google_login()
+def dashboard(button=login_page()) -> rx.Component:
     """Protected landing page/dashboard for the banking app."""
     return rx.container(
         rx.color_mode.button(position="top-right"),
