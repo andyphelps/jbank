@@ -1,0 +1,36 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <Languages>
+        <language minSize="153" name="Python" />
+      </Languages>
+    </inspection_tool>
+    <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="10">
+            <item index="0" class="java.lang.String" itemvalue="hx-swap" />
+            <item index="1" class="java.lang.String" itemvalue="hx-target" />
+            <item index="2" class="java.lang.String" itemvalue="hx-trigger" />
+            <item index="3" class="java.lang.String" itemvalue="hx-post" />
+            <item index="4" class="java.lang.String" itemvalue="hx-include" />
+            <item index="5" class="java.lang.String" itemvalue="hx-vals" />
+            <item index="6" class="java.lang.String" itemvalue="hx-get" />
+            <item index="7" class="java.lang.String" itemvalue="hx-put" />
+            <item index="8" class="java.lang.String" itemvalue="hx-delete" />
+            <item index="9" class="java.lang.String" itemvalue="hx-confirm" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="PyStubPackagesAdvertiser" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="pandas-stubs==2.3.0.250703" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
