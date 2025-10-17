@@ -8,45 +8,82 @@ from rxconfig import config
 
 class State(rx.State):
     """The app state."""
-    pass
+
+    @rx.event
+    async def handle_login_success(self, response: dict):
+        """Handle successful Google login and redirect to dashboard."""
+        # Call the Google Auth state handler
+        await GoogleAuthState.on_success(response)
+        # Redirect to dashboard after successful login
+        return rx.redirect("/dashboard")
 
 
 def login_page() -> rx.Component:
     """Login page with Google authentication."""
+    # Check if already logged in, redirect to dashboard
     return google_oauth_provider(
         rx.container(
             rx.color_mode.button(position="top-right"),
-            rx.vstack(
-                rx.heading("JBank", size="9", margin_bottom="1rem"),
-                rx.text(
-                    "Welcome to JBank - Your Joint Banking Application",
-                    size="5",
-                    color_scheme="gray",
-                    margin_bottom="2rem",
+            rx.cond(
+                GoogleAuthState.token_is_valid,
+                rx.vstack(
+                    rx.spinner(size="3"),
+                    rx.text("Already logged in, redirecting..."),
+                    on_mount=rx.redirect("/dashboard"),
                 ),
-                rx.card(
-                    rx.vstack(
-                        rx.heading("Sign In", size="6", margin_bottom="1rem"),
-                        rx.text(
-                            "Please sign in with your Google account to access your banking dashboard.",
-                            size="3",
-                            color_scheme="gray",
-                            margin_bottom="1.5rem",
-                            text_align="center",
-                        ),
-                        google_login(),
-                        spacing="4",
-                        align="center",
+                rx.vstack(
+                    rx.heading("JBank", size="9", margin_bottom="1rem"),
+                    rx.text(
+                        "Welcome to JBank - Your Joint Banking Application",
+                        size="5",
+                        color_scheme="gray",
+                        margin_bottom="2rem",
                     ),
-                    padding="2rem",
-                    max_width="500px",
+                    rx.card(
+                        rx.vstack(
+                            rx.heading("Sign In", size="6", margin_bottom="1rem"),
+                            rx.text(
+                                "Please sign in with your Google account to access your banking dashboard.",
+                                size="3",
+                                color_scheme="gray",
+                                margin_bottom="1.5rem",
+                                text_align="center",
+                            ),
+                            google_login(on_success=State.handle_login_success),
+                            spacing="4",
+                            align="center",
+                        ),
+                        padding="2rem",
+                        max_width="500px",
+                    ),
+                    spacing="5",
+                    justify="center",
+                    align="center",
+                    min_height="85vh",
                 ),
-                spacing="5",
-                justify="center",
-                align="center",
-                min_height="85vh",
             ),
         )
+    )
+
+
+def index() -> rx.Component:
+    """Index page that redirects based on auth status."""
+    return google_oauth_provider(
+        rx.cond(
+            GoogleAuthState.token_is_valid,
+            rx.center(
+                rx.vstack(
+                    rx.spinner(size="3"),
+                    rx.text("Redirecting to dashboard..."),
+                ),
+                min_height="100vh",
+            ),
+        ),
+        on_mount=rx.cond(
+            GoogleAuthState.token_is_valid,
+            rx.redirect("/dashboard"),
+            rx.redirect("/login"),
+        ),
     )
 
 
@@ -186,5 +223,6 @@ def dashboard() -> rx.Component:
 
 
 app = rx.App()
-app.add_page(login_page, route="/", title="JBank - Login")
+app.add_page(index, route="/", title="JBank")
+app.add_page(login_page, route="/login", title="JBank - Login")
 app.add_page(dashboard, route="/dashboard", title="JBank - Dashboard")
