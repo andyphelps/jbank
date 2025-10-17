@@ -11,100 +11,54 @@ class State(rx.State):
     pass
 
 
-def login_page() -> rx.Component:
-    """Login page with Google authentication."""
-    # Check if already logged in, redirect to dashboard
-    return google_oauth_provider(
-        rx.container(
-            rx.color_mode.button(position="top-right"),
-            rx.cond(
-                GoogleAuthState.token_is_valid,
-                rx.vstack(
-                    rx.spinner(size="3"),
-                    rx.text("Already logged in, redirecting..."),
-                    on_mount=rx.redirect("/dashboard"),
-                ),
-                rx.vstack(
-                    rx.heading("JBank", size="9", margin_bottom="1rem"),
-                    rx.text(
-                        "Welcome to JBank - Your Joint Banking Application",
-                        size="5",
-                        color_scheme="gray",
-                        margin_bottom="2rem",
-                    ),
-                    rx.card(
-                        rx.vstack(
-                            rx.heading("Sign In", size="6", margin_bottom="1rem"),
-                            rx.text(
-                                "Please sign in with your Google account to access your banking dashboard.",
-                                size="3",
-                                color_scheme="gray",
-                                margin_bottom="1.5rem",
-                                text_align="center",
-                            ),
-                            google_login(),
-                            spacing="4",
-                            align="center",
-                        ),
-                        padding="2rem",
-                        max_width="500px",
-                    ),
-                    spacing="5",
-                    justify="center",
-                    align="center",
-                    min_height="85vh",
-                ),
-            ),
-        )
-    )
-
-
 def index() -> rx.Component:
-    """Index page that redirects based on auth status."""
+    """Index page that redirects to dashboard."""
     return google_oauth_provider(
-        rx.cond(
-            GoogleAuthState.token_is_valid,
-            rx.center(
-                rx.vstack(
-                    rx.spinner(size="3"),
-                    rx.text("Redirecting to dashboard..."),
-                ),
-                min_height="100vh",
+        rx.center(
+            rx.vstack(
+                rx.spinner(size="3"),
+                rx.text("Loading..."),
             ),
+            min_height="100vh",
         ),
-        on_mount=rx.cond(
-            GoogleAuthState.token_is_valid,
-            rx.redirect("/dashboard"),
-            rx.redirect("/login"),
-        ),
+        on_mount=rx.redirect("/dashboard"),
     )
 
 
 @require_google_login(
-    button=rx.center(
-        rx.vstack(
-            rx.card(
-                rx.vstack(
-                    rx.heading("Authentication Required", size="6", margin_bottom="1rem"),
-                    rx.text(
-                        "Please sign in with your Google account to access the dashboard.",
-                        size="3",
-                        color_scheme="gray",
-                        margin_bottom="1.5rem",
-                        text_align="center",
+    button=google_oauth_provider(
+        rx.center(
+            rx.vstack(
+                rx.card(
+                    rx.vstack(
+                        rx.heading("JBank", size="9", margin_bottom="1rem"),
+                        rx.text(
+                            "Welcome to JBank - Your Joint Banking Application",
+                            size="5",
+                            color_scheme="gray",
+                            margin_bottom="2rem",
+                        ),
+                        rx.heading("Sign In", size="6", margin_bottom="1rem"),
+                        rx.text(
+                            "Please sign in with your Google account to access your banking dashboard.",
+                            size="3",
+                            color_scheme="gray",
+                            margin_bottom="1.5rem",
+                            text_align="center",
+                        ),
+                        google_login(),
+                        spacing="4",
+                        align="center",
                     ),
-                    google_login(),
-                    spacing="4",
-                    align="center",
+                    padding="2rem",
+                    max_width="500px",
                 ),
-                padding="2rem",
-                max_width="500px",
+                spacing="5",
+                justify="center",
+                align="center",
+                min_height="85vh",
             ),
-            spacing="5",
-            justify="center",
-            align="center",
-            min_height="85vh",
-        ),
+        )
     )
 )
 def dashboard() -> rx.Component:
@@ -138,7 +92,7 @@ def dashboard() -> rx.Component:
                     ),
                     rx.button(
                         "Logout",
-                        on_click=[GoogleAuthState.logout, rx.redirect("/login")],
+                        on_click=[GoogleAuthState.logout, rx.redirect("/")],
                         variant="soft",
                         color_scheme="red",
                     ),
@@ -243,5 +197,4 @@ def dashboard() -> rx.Component:
 
 app = rx.App()
 app.add_page(index, route="/", title="JBank")
-app.add_page(login_page, route="/login", title="JBank - Login")
 app.add_page(dashboard, route="/dashboard", title="JBank - Dashboard")
